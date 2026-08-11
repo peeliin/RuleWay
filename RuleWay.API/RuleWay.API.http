@@ -1,0 +1,6 @@
+@RuleWay.API_HostAddress = http://localhost:5127
+
+GET {{RuleWay.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
