@@ -16,32 +16,37 @@ namespace RuleWay.API.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: api/Category
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            CancellationToken cancellationToken = default)
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _categoryService.GetAllAsync(
+                cancellationToken);
 
-            return Ok(categories);
+            var response = categories.Select(ToDto).ToList();
+
+            return Ok(response);
         }
 
-        // GET: api/Category/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(
+            int id,
+            CancellationToken cancellationToken = default)
         {
-            var category = await _categoryService.GetByIdAsync(id);
+            var category = await _categoryService.GetByIdAsync(
+                id,
+                cancellationToken);
 
             if (category == null)
-            {
                 return NotFound();
-            }
 
-            return Ok(category);
+            return Ok(ToDto(category));
         }
 
-        // POST: api/Category
         [HttpPost]
-        public async Task<IActionResult> Create(CreateCategoryDto dto)
+        public async Task<IActionResult> Create(
+            CreateCategoryDto dto,
+            CancellationToken cancellationToken = default)
         {
             var category = new Category
             {
@@ -51,12 +56,14 @@ namespace RuleWay.API.Controllers
 
             try
             {
-                var createdCategory = await _categoryService.CreateAsync(category);
+                var createdCategory = await _categoryService.CreateAsync(
+                    category,
+                    cancellationToken);
 
                 return CreatedAtAction(
                     nameof(GetById),
                     new { id = createdCategory.Id },
-                    createdCategory);
+                    ToDto(createdCategory));
             }
             catch (ArgumentException ex)
             {
@@ -65,6 +72,16 @@ namespace RuleWay.API.Controllers
                     message = ex.Message
                 });
             }
+        }
+
+        private static CategoryResponseDto ToDto(Category category)
+        {
+            return new CategoryResponseDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                MinimumStockQuantity = category.MinimumStockQuantity
+            };
         }
     }
 }

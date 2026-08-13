@@ -18,6 +18,14 @@ namespace RuleWay.Persistence.Context
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Product>()
+                .Property(p => p.Title)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.StockQuantity);
+
+            modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)

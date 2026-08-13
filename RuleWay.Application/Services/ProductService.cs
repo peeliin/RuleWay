@@ -1,4 +1,5 @@
-﻿using RuleWay.Application.Interfaces;
+﻿using RuleWay.Application.Common;
+using RuleWay.Application.Interfaces;
 using RuleWay.Domain.Entities;
 
 namespace RuleWay.Application.Services
@@ -16,42 +17,77 @@ namespace RuleWay.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<PagedResult<Product>> GetAllAsync(
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
-            return await _productRepository.GetAllAsync();
+            if (page < 1)
+                page = 1;
+
+            if (pageSize < 1)
+                pageSize = 10;
+
+            return await _productRepository.GetAllAsync(
+                page,
+                pageSize,
+                cancellationToken);
         }
 
-        public async Task<Product?> GetByIdAsync(int id)
+        public async Task<Product?> GetByIdAsync(
+            int id,
+            CancellationToken cancellationToken = default)
         {
-            return await _productRepository.GetByIdAsync(id);
+            return await _productRepository.GetByIdAsync(
+                id,
+                cancellationToken);
         }
 
-        public async Task<Product> CreateAsync(Product product)
+        public async Task<Product> CreateAsync(
+            Product product,
+            CancellationToken cancellationToken = default)
         {
-            await ValidateProductAsync(product);
-            return await _productRepository.AddAsync(product);
+            await ValidateProductAsync(product, cancellationToken);
+
+            return await _productRepository.AddAsync(
+                product,
+                cancellationToken);
         }
 
-        public async Task UpdateAsync(Product product)
+        public async Task UpdateAsync(
+            Product product,
+            CancellationToken cancellationToken = default)
         {
-            await ValidateProductAsync(product);
-            await _productRepository.UpdateAsync(product);
+            await ValidateProductAsync(product, cancellationToken);
+
+            await _productRepository.UpdateAsync(
+                product,
+                cancellationToken);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(
+            int id,
+            CancellationToken cancellationToken = default)
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            var product = await _productRepository.GetByIdAsync(
+                id,
+                cancellationToken);
 
             if (product == null)
                 throw new KeyNotFoundException("Product not found.");
 
-            await _productRepository.DeleteAsync(product);
+            await _productRepository.DeleteAsync(
+                product,
+                cancellationToken);
         }
 
-        public async Task<List<Product>> FilterAsync(
+        public async Task<PagedResult<Product>> FilterAsync(
             string? keyword,
             int? minStock,
-            int? maxStock)
+            int? maxStock,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
             if (minStock.HasValue &&
                 maxStock.HasValue &&
@@ -61,13 +97,24 @@ namespace RuleWay.Application.Services
                     "Minimum stock cannot be greater than maximum stock.");
             }
 
+            if (page < 1)
+                page = 1;
+
+            if (pageSize < 1)
+                pageSize = 10;
+
             return await _productRepository.FilterAsync(
                 keyword,
                 minStock,
-                maxStock);
+                maxStock,
+                page,
+                pageSize,
+                cancellationToken);
         }
 
-        private async Task ValidateProductAsync(Product product)
+        private async Task ValidateProductAsync(
+            Product product,
+            CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(product.Title))
                 throw new ArgumentException("Title cannot be empty.");
@@ -82,8 +129,9 @@ namespace RuleWay.Application.Services
                 return;
             }
 
-            var category = await _categoryRepository
-                .GetByIdAsync(product.CategoryId.Value);
+            var category = await _categoryRepository.GetByIdAsync(
+                product.CategoryId.Value,
+                cancellationToken);
 
             if (category == null)
                 throw new ArgumentException("Category not found.");

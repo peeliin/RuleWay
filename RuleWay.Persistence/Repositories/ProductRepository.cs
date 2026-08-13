@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RuleWay.Application.Common;
 using RuleWay.Application.Interfaces;
 using RuleWay.Domain.Entities;
 using RuleWay.Persistence.Context;
@@ -14,46 +15,81 @@ namespace RuleWay.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<PagedResult<Product>> GetAllAsync(
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var products = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return new PagedResult<Product>
+            {
+                Items = products,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<Product?> GetByIdAsync(
+            int id,
+            CancellationToken cancellationToken = default)
         {
             return await _context.Products
                 .Include(p => p.Category)
-                .ToListAsync();
+                .FirstOrDefaultAsync(
+                    p => p.Id == id,
+                    cancellationToken);
         }
 
-        public async Task<Product?> GetByIdAsync(int id)
+        public async Task<Product> AddAsync(
+            Product product,
+            CancellationToken cancellationToken = default)
         {
-            return await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
+            await _context.Products.AddAsync(
+                product,
+                cancellationToken);
 
-        public async Task<Product> AddAsync(Product product)
-        {
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return product;
         }
 
-        public async Task UpdateAsync(Product product)
+        public async Task UpdateAsync(
+            Product product,
+            CancellationToken cancellationToken = default)
         {
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeleteAsync(Product product)
+        public async Task DeleteAsync(
+            Product product,
+            CancellationToken cancellationToken = default)
         {
             _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Product>> FilterAsync(
+        public async Task<PagedResult<Product>> FilterAsync(
             string? keyword,
             int? minStock,
-            int? maxStock)
+            int? maxStock,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
             var query = _context.Products
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .AsQueryable();
 
@@ -78,7 +114,20 @@ namespace RuleWay.Persistence.Repositories
                     p.StockQuantity <= maxStock.Value);
             }
 
-            return await query.ToListAsync();
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var products = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return new PagedResult<Product>
+            {
+                Items = products,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

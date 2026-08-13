@@ -14,21 +14,34 @@ namespace RuleWay.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<List<Category>> GetAllAsync()
-        {
-            return await _context.Categories.ToListAsync();
-        }
-
-        public async Task<Category?> GetByIdAsync(int id)
+        public async Task<List<Category>> GetAllAsync(
+            CancellationToken cancellationToken = default)
         {
             return await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Category> AddAsync(Category category)
+        public async Task<Category?> GetByIdAsync(
+            int id,
+            CancellationToken cancellationToken = default)
         {
-            await _context.Categories.AddAsync(category);
-            await _context.SaveChangesAsync();
+            return await _context.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    c => c.Id == id,
+                    cancellationToken);
+        }
+
+        public async Task<Category> AddAsync(
+            Category category,
+            CancellationToken cancellationToken = default)
+        {
+            await _context.Categories.AddAsync(
+                category,
+                cancellationToken);
+
+            await _context.SaveChangesAsync(cancellationToken);
 
             return category;
         }
