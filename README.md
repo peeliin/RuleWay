@@ -57,7 +57,7 @@ GET /api/Product/filter?keyword=mouse&minStock=5&maxStock=20
 ### API Endpoints
 ![Swagger Overview](swagger-overview.png.png)
 
-###Product Without Category
+### Product Without Category
 ![Categories](<Ekran görüntüsü 2026-08-13 133351.png>)
 
 ### Keyword Filter Results
