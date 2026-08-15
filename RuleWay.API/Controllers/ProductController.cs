@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RuleWay.Application.Common;
 using RuleWay.Application.DTOs;
 using RuleWay.Application.Services;
@@ -11,10 +11,14 @@ namespace RuleWay.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly ProductService _productService;
+        private readonly IWebHostEnvironment _environment;
 
-        public ProductController(ProductService productService)
+        public ProductController(
+            ProductService productService,
+            IWebHostEnvironment environment)
         {
             _productService = productService;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -182,6 +186,56 @@ namespace RuleWay.API.Controllers
             }
         }
 
+        [HttpPost("{id}/image")]
+        public async Task<IActionResult> UploadImage(
+            int id,
+            IFormFile file,
+            CancellationToken cancellationToken = default)
+        {
+            var product = await _productService.GetByIdAsync(
+                id,
+                cancellationToken);
+
+            if (product == null)
+                return NotFound();
+
+            if (file == null || file.Length == 0)
+                return BadRequest(new { message = "Dosya seçilmedi." });
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+                return BadRequest(new { message = "Desteklenmeyen dosya formatı. (jpg, jpeg, png, webp)" });
+
+            if (file.Length > 5 * 1024 * 1024)
+                return BadRequest(new { message = "Dosya boyutu 5 MB'den büyük olamaz." });
+
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "products");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                var oldFilePath = Path.Combine(_environment.WebRootPath, product.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldFilePath))
+                    System.IO.File.Delete(oldFilePath);
+            }
+
+            product.ImageUrl = $"/uploads/products/{fileName}";
+
+            await _productService.UpdateAsync(product, cancellationToken);
+
+            return Ok(new { imageUrl = product.ImageUrl });
+        }
+
         private static ProductResponseDto ToDto(Product product)
         {
             return new ProductResponseDto
@@ -191,6 +245,7 @@ namespace RuleWay.API.Controllers
                 Description = product.Description,
                 StockQuantity = product.StockQuantity,
                 IsLive = product.IsLive,
+                ImageUrl = product.ImageUrl,
                 CategoryId = product.CategoryId
             };
         }

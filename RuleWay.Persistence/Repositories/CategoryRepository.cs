@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RuleWay.Application.Interfaces;
 using RuleWay.Domain.Entities;
 using RuleWay.Persistence.Context;
@@ -44,6 +44,34 @@ namespace RuleWay.Persistence.Repositories
             await _context.SaveChangesAsync(cancellationToken);
 
             return category;
+        }
+
+        public async Task UpdateAsync(
+            Category category,
+            CancellationToken cancellationToken = default)
+        {
+            _context.Categories.Update(category);
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task DeleteAsync(
+            Category category,
+            CancellationToken cancellationToken = default)
+        {
+            _context.Categories.Remove(category);
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<bool> HasProductsAsync(
+            int categoryId,
+            CancellationToken cancellationToken = default)
+        {
+            return await _context.Products
+                .AnyAsync(
+                    p => p.CategoryId == categoryId,
+                    cancellationToken);
         }
     }
 }

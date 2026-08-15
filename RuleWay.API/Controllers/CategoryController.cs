@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RuleWay.Application.DTOs;
 using RuleWay.Application.Services;
 using RuleWay.Domain.Entities;
@@ -68,6 +68,68 @@ namespace RuleWay.API.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(
+            int id,
+            UpdateCategoryDto dto,
+            CancellationToken cancellationToken = default)
+        {
+            var existingCategory = await _categoryService.GetByIdAsync(
+                id,
+                cancellationToken);
+
+            if (existingCategory == null)
+                return NotFound();
+
+            existingCategory.Name = dto.Name;
+            existingCategory.MinimumStockQuantity = dto.MinimumStockQuantity;
+
+            try
+            {
+                await _categoryService.UpdateAsync(
+                    existingCategory,
+                    cancellationToken);
+
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(
+            int id,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await _categoryService.DeleteAsync(
+                    id,
+                    cancellationToken);
+
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new
                 {
                     message = ex.Message
                 });

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,7 @@ namespace RuleWay.Domain.Entities
 
         public int StockQuantity { get; set; }
         public bool IsLive { get; set; }
+        public string? ImageUrl { get; set; }
 
         public int? CategoryId { get; set; }
         public Category? Category { get; set; }

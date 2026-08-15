@@ -6,8 +6,6 @@ using RuleWay.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<RuleWayDbContext>(options =>
@@ -19,13 +17,20 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowUI", policy =>
+    {
+        policy.WithOrigins("http://localhost:5002")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -34,6 +39,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowUI");
+
+app.UseStaticFiles();
 
 app.UseAuthorization();
 

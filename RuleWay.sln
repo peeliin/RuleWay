@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
@@ -12,6 +11,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleWay.Infrastructure", "RuleWay.Infrastructure\RuleWay.Infrastructure.csproj", "{20D5D4DF-AC40-428B-8928-DD01F8349CAA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleWay.Persistence", "RuleWay.Persistence\RuleWay.Persistence.csproj", "{7F318F8F-12C6-41BF-922B-E592D972AADF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuleWay.UI", "RuleWay.UI\RuleWay.UI.csproj", "{B2C3D4E5-F6A7-8901-BCDE-F12345678901}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontends", "Frontends", "{D7CDECFB-F7FC-4BE2-A88B-599D28577C8D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{9D496D65-4072-4B98-A519-CF5F0F56425C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{94036253-0316-46C1-9E4C-0E24332C03B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +48,20 @@ Global
 		{7F318F8F-12C6-41BF-922B-E592D972AADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F318F8F-12C6-41BF-922B-E592D972AADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F318F8F-12C6-41BF-922B-E592D972AADF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CDA920A3-876C-484E-A47F-B6075645A47B} = {94036253-0316-46C1-9E4C-0E24332C03B8}
+		{CAF1AE7F-5392-471E-9CEA-5935B93C4D7F} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
+		{188BE51F-75B7-42E0-B2BA-87FAFBDAE6D4} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
+		{20D5D4DF-AC40-428B-8928-DD01F8349CAA} = {9D496D65-4072-4B98-A519-CF5F0F56425C}
+		{7F318F8F-12C6-41BF-922B-E592D972AADF} = {9D496D65-4072-4B98-A519-CF5F0F56425C}
+		{B2C3D4E5-F6A7-8901-BCDE-F12345678901} = {D7CDECFB-F7FC-4BE2-A88B-599D28577C8D}
 	EndGlobalSection
 EndGlobal

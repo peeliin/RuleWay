@@ -1,4 +1,4 @@
-﻿namespace RuleWay.Application.DTOs
+namespace RuleWay.Application.DTOs
 {
     public class ProductResponseDto
     {
@@ -7,6 +7,7 @@
         public string Description { get; set; } = string.Empty;
         public int StockQuantity { get; set; }
         public bool IsLive { get; set; }
+        public string? ImageUrl { get; set; }
         public int? CategoryId { get; set; }
     }
 }

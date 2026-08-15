@@ -1,4 +1,4 @@
-﻿using RuleWay.Application.Common;
+using RuleWay.Application.Common;
 using RuleWay.Application.Interfaces;
 using RuleWay.Domain.Entities;
 
@@ -74,7 +74,7 @@ namespace RuleWay.Application.Services
                 cancellationToken);
 
             if (product == null)
-                throw new KeyNotFoundException("Product not found.");
+                throw new KeyNotFoundException("Ürün bulunamadı.");
 
             await _productRepository.DeleteAsync(
                 product,
@@ -94,7 +94,7 @@ namespace RuleWay.Application.Services
                 minStock.Value > maxStock.Value)
             {
                 throw new ArgumentException(
-                    "Minimum stock cannot be greater than maximum stock.");
+                    "Minimum stok adedi maksimum stok adedinden büyük olamaz.");
             }
 
             if (page < 1)
@@ -117,11 +117,11 @@ namespace RuleWay.Application.Services
             CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(product.Title))
-                throw new ArgumentException("Title cannot be empty.");
+                throw new ArgumentException("Ürün başlığı boş olamaz.");
 
             if (product.Title.Length > 200)
                 throw new ArgumentException(
-                    "Title cannot be longer than 200 characters.");
+                    "Ürün başlığı 200 karakterden uzun olamaz.");
 
             if (!product.CategoryId.HasValue)
             {
@@ -134,7 +134,7 @@ namespace RuleWay.Application.Services
                 cancellationToken);
 
             if (category == null)
-                throw new ArgumentException("Category not found.");
+                throw new ArgumentException("Kategori bulunamadı.");
 
             product.IsLive =
                 product.StockQuantity >= category.MinimumStockQuantity;
