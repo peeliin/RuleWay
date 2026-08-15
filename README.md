@@ -50,3 +50,27 @@ Products can be filtered by keyword and stock range.
 Example:
 ```text
 GET /api/Product/filter?keyword=mouse&minStock=5&maxStock=20
+```
+
+## Screenshots
+
+### API Endpoints
+![Swagger Overview](swagger-overview.png.png)
+
+### Product Below Minimum Stock
+![Product Below Minimum Stock](<Ekran görüntüsü 2026-08-13 133351.png>)
+
+### Product Without Category
+![Product Without Category](<Ekran görüntüsü 2026-08-13 133442.png>)
+
+### Keyword Filter
+![Keyword Filter](<Ekran görüntüsü 2026-08-13 133607.png>)
+
+### Keyword Filter Results
+![Keyword Filter Results](<Ekran görüntüsü 2026-08-13 133626.png>)
+
+### Stock Range Filter
+![Stock Range Filter](<Ekran görüntüsü 2026-08-13 133720.png>)
+
+### Delete Product
+![Delete Product](<Ekran görüntüsü 2026-08-13 134000.png>)
