@@ -53,8 +53,3 @@ GET /api/Product/filter?keyword=mouse&minStock=5&maxStock=20
 ```
 
 
-### Stock Range Filter
-![Stock Range Filter](<Ekran görüntüsü 2026-08-13 133720.png>)
-
-### Delete Product
-![Delete Product](<Ekran görüntüsü 2026-08-13 134000.png>)
