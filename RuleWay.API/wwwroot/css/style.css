@@ -303,7 +303,47 @@ body {
     border: none;
     border-radius: 12px;
 }
+#deleteModal .modal-content {
+    border: none;
+    border-radius: 18px;
+}
 
+#deleteModal .modal-body {
+    padding: 30px;
+}
+
+#deleteModal h5 {
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+#deleteModal p {
+    margin-bottom: 24px;
+    color: #7b7b8a;
+    font-size: 14px;
+}
+
+#deleteModal .btn-light {
+    background-color: #f1f1f6;
+    color: #555568;
+    border: none;
+    border-radius: 9px;
+    padding: 9px 18px;
+    font-weight: 600;
+}
+
+#deleteModal .btn-danger {
+    background-color: #d94f4f;
+    border: none;
+    border-radius: 9px;
+    padding: 9px 18px;
+    font-weight: 600;
+}
+
+    #deleteModal .btn-danger:hover {
+        background-color: #c64040;
+    }
 @media (max-width: 768px) {
     .page-heading {
         align-items: flex-start;

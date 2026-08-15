@@ -2,12 +2,18 @@ let currentPage = 1;
 const pageSize = 5;
 let filterActive = false;
 let categories = {};
+let productToDeleteId = null;
 
 const productModal = new bootstrap.Modal(
     document.getElementById("productModal")
 );
 
+const deleteModal = new bootstrap.Modal(
+    document.getElementById("deleteModal")
+);
+
 $(document).ready(function () {
+
     loadCategories().always(function () {
         loadProducts();
     });
@@ -16,12 +22,14 @@ $(document).ready(function () {
         $("#productForm")[0].reset();
         $("#productId").val("");
         $("#modalTitle").text("Add Product");
+
         productModal.show();
     });
 
     $("#filterBtn").click(function () {
         currentPage = 1;
         filterActive = true;
+
         loadProducts();
     });
 
@@ -56,27 +64,54 @@ $(document).ready(function () {
 
     $(document).on("click", ".edit-btn", function () {
         const id = $(this).data("id");
+
         openEditModal(id);
     });
 
     $(document).on("click", ".delete-btn", function () {
         const id = $(this).data("id");
-        deleteProduct(id);
+
+        const title = $(this)
+            .closest("tr")
+            .find(".product-name")
+            .text()
+            .trim();
+
+        productToDeleteId = id;
+
+        $("#deleteMessage").text(
+            `Are you sure you want to delete "${title}"?`
+        );
+
+        deleteModal.show();
     });
+
+    $("#confirmDeleteBtn").click(function () {
+        if (productToDeleteId !== null) {
+            deleteProduct(productToDeleteId);
+        }
+    });
+
 });
 
 function loadCategories() {
+
     return $.ajax({
         url: "/api/Category",
         type: "GET",
+
         success: function (data) {
+
             categories = {};
 
             $("#productCategory")
                 .empty()
-                .append('<option value="">No Category</option>');
+                .append(
+                    '<option value="">No Category</option>'
+                );
 
             data.forEach(function (category) {
+
                 categories[category.id] = category.name;
 
                 $("#productCategory").append(
@@ -84,8 +119,11 @@ function loadCategories() {
                         ${escapeHtml(category.name)}
                     </option>`
                 );
+
             });
+
         },
+
         error: function () {
             showMessage(
                 "Categories could not be loaded.",
@@ -93,9 +131,11 @@ function loadCategories() {
             );
         }
     });
+
 }
 
 function loadProducts() {
+
     let url = "/api/Product";
 
     const data = {
@@ -104,6 +144,7 @@ function loadProducts() {
     };
 
     if (filterActive) {
+
         url = "/api/Product/filter";
 
         const keyword = $("#keywordInput").val().trim();
@@ -121,27 +162,33 @@ function loadProducts() {
         if (maxStock !== "") {
             data.maxStock = maxStock;
         }
+
     }
 
     $.ajax({
         url: url,
         type: "GET",
         data: data,
+
         success: function (response) {
             renderProducts(response);
         },
+
         error: function (xhr) {
             showError(xhr);
         }
     });
+
 }
 
 function renderProducts(response) {
+
     const tbody = $("#productTableBody");
 
     tbody.empty();
 
     if (!response.items || response.items.length === 0) {
+
         tbody.append(`
             <tr>
                 <td colspan="5" class="empty-row">
@@ -149,20 +196,25 @@ function renderProducts(response) {
                 </td>
             </tr>
         `);
+
     } else {
+
         response.items.forEach(function (product) {
+
             const categoryName =
                 product.categoryId &&
                     categories[product.categoryId]
                     ? categories[product.categoryId]
                     : "No Category";
 
-            const status = product.isLive
-                ? '<span class="status-live">Live</span>'
-                : '<span class="status-offline">Not Live</span>';
+            const status =
+                product.isLive
+                    ? '<span class="status-live">Live</span>'
+                    : '<span class="status-offline">Not Live</span>';
 
             tbody.append(`
                 <tr>
+
                     <td>
                         <div class="product-name">
                             ${escapeHtml(product.title)}
@@ -196,9 +248,12 @@ function renderProducts(response) {
                             Delete
                         </button>
                     </td>
+
                 </tr>
             `);
+
         });
+
     }
 
     const totalPages = Math.max(
@@ -219,55 +274,85 @@ function renderProducts(response) {
         "disabled",
         response.page >= totalPages
     );
+
 }
 
 function openEditModal(id) {
+
     $.ajax({
         url: `/api/Product/${id}`,
         type: "GET",
+
         success: function (product) {
+
             $("#productId").val(product.id);
-            $("#productTitle").val(product.title);
+
+            $("#productTitle").val(
+                product.title
+            );
+
             $("#productDescription").val(
                 product.description
             );
+
             $("#productStock").val(
                 product.stockQuantity
             );
+
             $("#productCategory").val(
                 product.categoryId ?? ""
             );
 
-            $("#modalTitle").text("Edit Product");
+            $("#modalTitle").text(
+                "Edit Product"
+            );
 
             productModal.show();
+
         },
+
         error: function (xhr) {
             showError(xhr);
         }
     });
+
 }
 
 function saveProduct() {
+
     const id = $("#productId").val();
+
     const categoryValue =
         $("#productCategory").val();
 
     const product = {
-        title: $("#productTitle").val().trim(),
+
+        title:
+            $("#productTitle")
+                .val()
+                .trim(),
+
         description:
-            $("#productDescription").val().trim(),
+            $("#productDescription")
+                .val()
+                .trim(),
+
         stockQuantity:
-            Number($("#productStock").val()),
+            Number(
+                $("#productStock").val()
+            ),
+
         categoryId:
             categoryValue === ""
                 ? null
                 : Number(categoryValue)
+
     };
 
     const isUpdate = id !== "";
 
     $.ajax({
+
         url: isUpdate
             ? `/api/Product/${id}`
             : "/api/Product",
@@ -281,6 +366,7 @@ function saveProduct() {
         data: JSON.stringify(product),
 
         success: function () {
+
             productModal.hide();
 
             showMessage(
@@ -291,40 +377,53 @@ function saveProduct() {
             );
 
             loadProducts();
+
         },
+
         error: function (xhr) {
             showError(xhr);
         }
+
     });
+
 }
 
 function deleteProduct(id) {
-    const confirmed = confirm(
-        "Are you sure you want to delete this product?"
-    );
-
-    if (!confirmed) {
-        return;
-    }
 
     $.ajax({
         url: `/api/Product/${id}`,
         type: "DELETE",
+
         success: function () {
+
+            deleteModal.hide();
+
+            productToDeleteId = null;
+
             showMessage(
                 "Product deleted successfully.",
                 "success"
             );
 
             loadProducts();
+
         },
+
         error: function (xhr) {
+
+            deleteModal.hide();
+
+            productToDeleteId = null;
+
             showError(xhr);
+
         }
     });
+
 }
 
 function showMessage(message, type) {
+
     $("#alertContainer").html(`
         <div class="alert alert-${type}
                     alert-dismissible fade show"
@@ -336,25 +435,35 @@ function showMessage(message, type) {
                     class="btn-close"
                     data-bs-dismiss="alert">
             </button>
+
         </div>
     `);
+
 }
 
 function showError(xhr) {
+
     let message = "Something went wrong.";
 
     if (
         xhr.responseJSON &&
         xhr.responseJSON.message
     ) {
-        message = xhr.responseJSON.message;
+        message =
+            xhr.responseJSON.message;
     }
 
-    showMessage(message, "danger");
+    showMessage(
+        message,
+        "danger"
+    );
+
 }
 
 function escapeHtml(value) {
+
     return $("<div>")
         .text(value ?? "")
         .html();
+
 }
