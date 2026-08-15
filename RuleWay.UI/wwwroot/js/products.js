@@ -1,46 +1,15 @@
-const API_BASE_URL = "https://localhost:7080";
-
 let currentPage = 1;
 const pageSize = 5;
 let filterActive = false;
 let categories = {};
-let deleteCallback = null;
 let selectedImageFile = null;
-
-const productModal = new bootstrap.Modal(document.getElementById("productModal"));
-const categoryModal = new bootstrap.Modal(document.getElementById("categoryModal"));
-const deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
+let productModal;
 
 $(document).ready(function () {
-    loadCategories().always(function () {
+    productModal = new bootstrap.Modal(document.getElementById("productModal"));
+
+    loadCategoriesForProducts().always(function () {
         loadProducts();
-    });
-
-    $(".nav-item").click(function (e) {
-        e.preventDefault();
-        $(".nav-item").removeClass("active");
-        $(this).addClass("active");
-
-        const page = $(this).data("page");
-
-        if (page === "products") {
-            $("#productsPage").show();
-            $("#categoriesPage").hide();
-            $("#pageTitle").text("Ürünler");
-        } else {
-            $("#productsPage").hide();
-            $("#categoriesPage").show();
-            $("#pageTitle").text("Kategoriler");
-            loadCategoryTable();
-        }
-
-        if ($(window).width() <= 768) {
-            $("#sidebar").removeClass("open");
-        }
-    });
-
-    $("#sidebarToggle").click(function () {
-        $("#sidebar").toggleClass("open");
     });
 
     $("#addProductBtn").click(function () {
@@ -96,38 +65,6 @@ $(document).ready(function () {
         );
     });
 
-    $("#addCategoryBtn").click(function () {
-        $("#categoryForm")[0].reset();
-        $("#categoryId").val("");
-        $("#categoryModalTitle").text("Kategori Ekle");
-        categoryModal.show();
-    });
-
-    $("#categoryForm").submit(function (e) {
-        e.preventDefault();
-        saveCategory();
-    });
-
-    $(document).on("click", ".edit-category-btn", function () {
-        openEditCategoryModal($(this).data("id"));
-    });
-
-    $(document).on("click", ".delete-category-btn", function () {
-        const id = $(this).data("id");
-        const name = $(this).closest("tr").find(".category-name-cell").text().trim();
-        openDeleteModal(
-            `"${name}" kategorisini silmek istediğinize emin misiniz?`,
-            function () { deleteCategory(id); }
-        );
-    });
-
-    $("#confirmDeleteBtn").click(function () {
-        if (deleteCallback) {
-            deleteCallback();
-        }
-    });
-
-
     $("#productImage").change(function () {
         const file = this.files[0];
         if (file) {
@@ -149,7 +86,7 @@ function resetImagePreview() {
     $("#productImage").val("");
 }
 
-function loadCategories() {
+function loadCategoriesForProducts() {
     return $.ajax({
         url: `${API_BASE_URL}/api/Category`,
         type: "GET",
@@ -355,146 +292,4 @@ function deleteProduct(id) {
             showToast(getErrorMessage(xhr), "error");
         }
     });
-}
-
-function loadCategoryTable() {
-    $.ajax({
-        url: `${API_BASE_URL}/api/Category`,
-        type: "GET",
-        success: function (data) {
-            renderCategories(data);
-        },
-        error: function (xhr) {
-            showToast(getErrorMessage(xhr), "error");
-        }
-    });
-}
-
-function renderCategories(data) {
-    const tbody = $("#categoryTableBody");
-    tbody.empty();
-
-    if (!data || data.length === 0) {
-        tbody.append(`<tr><td colspan="3" class="empty-row">Kategori bulunamadı.</td></tr>`);
-    } else {
-        data.forEach(function (c) {
-            tbody.append(`
-                <tr>
-                    <td class="category-name-cell">${esc(c.name)}</td>
-                    <td>${c.minimumStockQuantity}</td>
-                    <td>
-                        <button class="action-btn edit edit-category-btn" data-id="${c.id}">
-                            <i class="bi bi-pencil"></i> Güncelle
-                        </button>
-                        <button class="action-btn delete delete-category-btn" data-id="${c.id}">
-                            <i class="bi bi-trash3"></i> Sil
-                        </button>
-                    </td>
-                </tr>
-            `);
-        });
-    }
-}
-
-function openEditCategoryModal(id) {
-    $.ajax({
-        url: `${API_BASE_URL}/api/Category/${id}`,
-        type: "GET",
-        success: function (c) {
-            $("#categoryId").val(c.id);
-            $("#categoryName").val(c.name);
-            $("#categoryMinStock").val(c.minimumStockQuantity);
-            $("#categoryModalTitle").text("Kategori Güncelle");
-            categoryModal.show();
-        },
-        error: function (xhr) {
-            showToast(getErrorMessage(xhr), "error");
-        }
-    });
-}
-
-function saveCategory() {
-    const id = $("#categoryId").val();
-    const category = {
-        name: $("#categoryName").val().trim(),
-        minimumStockQuantity: Number($("#categoryMinStock").val())
-    };
-
-    const isUpdate = id !== "";
-
-    $.ajax({
-        url: isUpdate
-            ? `${API_BASE_URL}/api/Category/${id}`
-            : `${API_BASE_URL}/api/Category`,
-        type: isUpdate ? "PUT" : "POST",
-        contentType: "application/json",
-        data: JSON.stringify(category),
-        success: function () {
-            categoryModal.hide();
-            showToast(isUpdate ? "Kategori başarıyla güncellendi." : "Kategori başarıyla eklendi.", "success");
-            loadCategoryTable();
-            loadCategories();
-        },
-        error: function (xhr) {
-            showToast(getErrorMessage(xhr), "error");
-        }
-    });
-}
-
-function deleteCategory(id) {
-    $.ajax({
-        url: `${API_BASE_URL}/api/Category/${id}`,
-        type: "DELETE",
-        success: function () {
-            deleteModal.hide();
-            showToast("Kategori başarıyla silindi.", "success");
-            loadCategoryTable();
-            loadCategories();
-        },
-        error: function (xhr) {
-            deleteModal.hide();
-            showToast(getErrorMessage(xhr), "error");
-        }
-    });
-}
-
-function openDeleteModal(message, callback) {
-    deleteCallback = callback;
-    $("#deleteMessage").text(message);
-    deleteModal.show();
-}
-
-function showToast(message, type) {
-    const icon = type === "success" ? "bi-check-circle-fill" : "bi-x-circle-fill";
-    const toastClass = type === "success" ? "toast-success" : "toast-error";
-
-    const toastId = "toast-" + Date.now();
-    const html = `
-        <div id="${toastId}" class="toast custom-toast ${toastClass}" role="alert">
-            <div class="toast-body">
-                <i class="bi ${icon}"></i>
-                <span>${esc(message)}</span>
-            </div>
-        </div>
-    `;
-
-    $("#toastContainer").append(html);
-    const toastEl = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
-    toast.show();
-
-    $(toastEl).on("hidden.bs.toast", function () {
-        $(this).remove();
-    });
-}
-
-function getErrorMessage(xhr) {
-    if (xhr.responseJSON && xhr.responseJSON.message) {
-        return xhr.responseJSON.message;
-    }
-    return "İşlem sırasında bir hata oluştu.";
-}
-
-function esc(value) {
-    return $("<div>").text(value ?? "").html();
 }

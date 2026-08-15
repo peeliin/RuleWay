@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Ürünler";
+}
+
+<section id="productsPage">
+
+    <div class="page-header">
+        <div>
+            <h3>Ürün Yönetimi</h3>
+            <p class="page-subtitle">Ürünlerinizi ve stok bilgilerinizi yönetin.</p>
+        </div>
+        <button class="btn-primary-custom" id="addProductBtn">
+            <i class="bi bi-plus-lg"></i> Ürün Ekle
+        </button>
+    </div>
+
+    <div class="filter-card">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="keywordInput">Aranacak Kelime</label>
+                <input id="keywordInput" type="text" placeholder="Aranacak kelime...">
+            </div>
+            <div class="filter-group">
+                <label for="minStockInput">Min Stok</label>
+                <input id="minStockInput" type="number" placeholder="0">
+            </div>
+            <div class="filter-group">
+                <label for="maxStockInput">Max Stok</label>
+                <input id="maxStockInput" type="number" placeholder="100">
+            </div>
+            <div class="filter-actions">
+                <button class="btn-filter" id="filterBtn">
+                    <i class="bi bi-funnel"></i> Filtrele
+                </button>
+                <button class="btn-clear" id="clearBtn">
+                    <i class="bi bi-x-lg"></i> Temizle
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Görsel</th>
+                        <th>Ürün</th>
+                        <th>Kategori</th>
+                        <th>Stok</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination-area">
+            <button class="pagination-btn" id="previousBtn">
+                <i class="bi bi-chevron-left"></i> Önceki
+            </button>
+            <span id="pageInfo" class="page-info">Sayfa 1</span>
+            <button class="pagination-btn" id="nextBtn">
+                Sonraki <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+</section>
+
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content custom-modal">
+            <div class="modal-header">
+                <h5 id="productModalTitle" class="modal-title">Ürün Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="productForm">
+                <div class="modal-body">
+                    <input type="hidden" id="productId">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <div class="form-item">
+                                <label for="productTitle">Başlık</label>
+                                <input id="productTitle" type="text" required>
+                            </div>
+                            <div class="form-item">
+                                <label for="productDescription">Açıklama</label>
+                                <textarea id="productDescription" rows="3"></textarea>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="form-item">
+                                        <label for="productStock">Stok Adedi</label>
+                                        <input id="productStock" type="number" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-item">
+                                        <label for="productCategory">Kategori</label>
+                                        <select id="productCategory">
+                                            <option value="">Kategori Yok</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-item">
+                                <label>Ürün Görseli</label>
+                                <label class="image-upload-area" id="imageUploadArea" for="productImage" style="display: flex; cursor: pointer; width: 100%;">
+                                    <img id="imagePreview" src="" alt="" style="display:none;">
+                                    <div id="imagePlaceholder" class="image-placeholder">
+                                        <i class="bi bi-image"></i>
+                                        <span>Görsel Yükle</span>
+                                    </div>
+                                    <input type="file" id="productImage" accept="image/*" style="display:none;">
+                                </label>
+                                <label class="btn-upload-small" id="selectImageBtn" for="productImage" style="display: flex; cursor: pointer; justify-content: center; width: 100%;">
+                                    <i class="bi bi-upload"></i> Dosya Seç
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn-save">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/products.js"></script>
+}
