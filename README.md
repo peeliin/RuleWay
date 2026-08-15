@@ -10,6 +10,12 @@ The project provides CRUD operations for products, category management, product 
 - SQL Server
 - Swagger
 - Onion Architecture
+- HTML
+- CSS
+- Bootstrap 5
+- JavaScript
+- jQuery
+- AJAX
 
 ## Project Structure
 - RuleWay.API
